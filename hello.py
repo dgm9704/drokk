@@ -9,20 +9,35 @@ HANDLE_COLOR = 1
 NAME_COLOR = 2
 
 def main(stdscr):
-    curses.init_pair(HANDLE_COLOR,curses.COLOR_MAGENTA,curses.COLOR_BLACK)
-    curses.init_pair(NAME_COLOR,curses.COLOR_YELLOW,curses.COLOR_BLACK)
+    curses.init_pair(HANDLE_COLOR, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+    curses.init_pair(NAME_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     
-    stdscr.addstr(0,0,"drokk\n", curses.A_REVERSE)
-    stdscr.refresh()
+    stdscr.addstr(0, 0, "drokk\n", curses.A_REVERSE)
+    begin_y = 3
+    begin_x = 3
+    height = curses.LINES -5
+    width = curses.COLS -5
+    win = curses.newwin(height, width, begin_y, begin_x)
 
-    with open("data.json","r") as data:
+    while True:
+        stdscr.refresh()
+        c = stdscr.getch()
+
+        if c == ord('q'):
+            break
+        elif c == ord('r'):
+            load_tweets(win)
+
+def load_tweets(win):
+    with open("data.json", "r") as data:
         timeline = json.load(data)
 
+    win.erase()
+
     for tweet in timeline:
-        output_tweet(tweet,stdscr)
-       
-    stdscr.refresh()
-    stdscr.getch()
+        output_tweet(tweet,win)
+        win.refresh()
+    
 
 def output_tweet(tweet,win):
     handle = "@" + tweet["user"]["screen_name"] 
