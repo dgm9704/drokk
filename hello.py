@@ -4,26 +4,20 @@
 import json
 from curses import wrapper
 
-def main():# (stdscr):
-    #stdscr.addstr("Hello World!!!")
-    #stdscr.refresh()
-    #stdscr.getch()
+def main(stdscr):
 
     with open("data.json","r") as data:
-        content = json.load(data)
+        timeline = json.load(data)
 
-    for tweet in content:
-        print("@" + tweet["user"]["screen_name"] + " (" + tweet["user"]["name"] + ") :")
-        print("\t" + tweet["text"])
-        #for k,v in tweet.items():
-        #    print(k,v)
-            #stdscr.addstr(str(v)) #str(k) + " -> " + str(v))
-        print("\n")
-        #stdscr.addstr("----------")
+    for tweet in timeline:
+        header = "@" + tweet["user"]["screen_name"] + " (" + tweet["user"]["name"] + ") :\n"
+        content = "\t" + tweet["text"] + "\n"
+        stdscr.addstr(header)
+        stdscr.addstr(content)
+        stdscr.addstr("\n")
     
-    #stdscr.refresh()
-    #stdscr.getch()
+    stdscr.refresh()
+    stdscr.getch()
 
 if __name__ == '__main__':
-    main()
-    #wrapper(main)
+    wrapper(main)
