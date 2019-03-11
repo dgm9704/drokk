@@ -1,7 +1,7 @@
  
-# hello.py
+# drokk.py
 
-import json
+import json 
 from curses import wrapper
 import curses
 
@@ -13,6 +13,8 @@ def main(stdscr):
     curses.init_pair(NAME_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     
     stdscr.addstr(0, 0, "drokk\n", curses.A_REVERSE)
+    binds = '(r)eload (q)uit'
+    stdscr.addstr(curses.LINES -1, 0, binds, curses.A_REVERSE)
     begin_y = 3
     begin_x = 3
     height = curses.LINES -5
