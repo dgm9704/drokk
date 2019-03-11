@@ -1,8 +1,6 @@
  
 # drokk.py
-# ♥
-# » 
-
+# ↑
 import json 
 from curses import wrapper
 import curses
@@ -45,15 +43,22 @@ def load_tweets(win):
         win.refresh()
     
 
-def output_tweet(tweet,win):
+def output_tweet(tweet, win):
+    write_header(tweet, win)
+    write_content(tweet, win)
+    write_footer(tweet, win)
+
+def write_header(tweet, win):
     handle = "@" + tweet["user"]["screen_name"] 
     win.addstr(handle, curses.color_pair(HANDLE_COLOR))
-    win.addstr("\t")
     name = tweet["user"]["name"] 
     win.addstr(" (" + name + ")\n", curses.color_pair(NAME_COLOR))
+
+def write_content(tweet, win):
     content = tweet["text"] + "\n"
     win.addstr(content)
 
+def write_footer(tweet, win):
     if tweet["favorited"] == True:
         win.addstr("♥", curses.color_pair(FAVORITE_COLOR))
     else:
@@ -61,12 +66,11 @@ def output_tweet(tweet,win):
     win.addstr(str(tweet["user"]["favourites_count"]))
     win.addstr("\t\t")
     if tweet["retweeted"] == True:
-        win.addstr("#", curses.color_pair(FAVORITE_COLOR))
+        win.addstr("↑", curses.color_pair(FAVORITE_COLOR))
     else:
-        win.addstr("#")
+        win.addstr("↑")
     win.addstr(str(tweet["retweet_count"]))
     win.addstr("\n\n")
-
 
 if __name__ == '__main__':
     wrapper(main)
