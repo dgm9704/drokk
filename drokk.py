@@ -1,5 +1,7 @@
  
 # drokk.py
+# ♥
+# » 
 
 import json 
 from curses import wrapper
@@ -7,10 +9,12 @@ import curses
 
 HANDLE_COLOR = 1
 NAME_COLOR = 2
+FAVORITE_COLOR = 3
 
 def main(stdscr):
     curses.init_pair(HANDLE_COLOR, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
     curses.init_pair(NAME_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.init_pair(FAVORITE_COLOR, curses.COLOR_RED, curses.COLOR_BLACK)
     
     stdscr.addstr(0, 0, "drokk\n", curses.A_REVERSE)
     binds = '(r)eload (q)uit'
@@ -43,13 +47,25 @@ def load_tweets(win):
 
 def output_tweet(tweet,win):
     handle = "@" + tweet["user"]["screen_name"] 
-    win.addstr(handle,curses.color_pair(HANDLE_COLOR))
+    win.addstr(handle, curses.color_pair(HANDLE_COLOR))
     win.addstr("\t")
     name = tweet["user"]["name"] 
     win.addstr(" (" + name + ")\n", curses.color_pair(NAME_COLOR))
     content = tweet["text"] + "\n"
     win.addstr(content)
-    win.addstr("\n")
+
+    if tweet["favorited"] == True:
+        win.addstr("♥", curses.color_pair(FAVORITE_COLOR))
+    else:
+        win.addstr("♥")
+    win.addstr(str(tweet["user"]["favourites_count"]))
+    win.addstr("\t\t")
+    if tweet["retweeted"] == True:
+        win.addstr("#", curses.color_pair(FAVORITE_COLOR))
+    else:
+        win.addstr("#")
+    win.addstr(str(tweet["retweet_count"]))
+    win.addstr("\n\n")
 
 
 if __name__ == '__main__':

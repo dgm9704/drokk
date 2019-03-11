@@ -3,7 +3,7 @@
     "coordinates": null,
     "truncated": false,
     "created_at": "Tue Aug 28 21:16:23 +0000 2012",
-    "favorited": false,
+    "favorited": true,
     "id_str": "240558470661799936",
     "in_reply_to_user_id_str": null,
     "entities": {
@@ -149,7 +149,7 @@
       ],
       "type": "Point"
     },
-    "retweeted": false,
+    "retweeted": true,
     "possibly_sensitive": false,
     "in_reply_to_user_id": null,
     "place": {
