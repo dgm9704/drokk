@@ -5,6 +5,7 @@ import json
 from curses import wrapper
 import curses
 
+DEFAULT_COLOR = 0
 HANDLE_COLOR = 1
 NAME_COLOR = 2
 FAVORITE_COLOR = 3
@@ -40,7 +41,7 @@ def load_tweets(win):
 
     for tweet in timeline:
         output_tweet(tweet,win)
-        win.refresh()
+    win.refresh()
     
 
 def output_tweet(tweet, win):
@@ -60,16 +61,20 @@ def write_content(tweet, win):
 
 def write_footer(tweet, win):
     if tweet["favorited"] == True:
-        win.addstr("♥", curses.color_pair(FAVORITE_COLOR))
+        color = curses.color_pair(FAVORITE_COLOR)
     else:
-        win.addstr("♥")
-    win.addstr(str(tweet["user"]["favourites_count"]))
+        color = curses.color_pair(DEFAULT_COLOR)
+
+    win.addstr("♥ " + str(tweet["user"]["favourites_count"]), color)
+
     win.addstr("\t\t")
     if tweet["retweeted"] == True:
-        win.addstr("↑", curses.color_pair(FAVORITE_COLOR))
+        color = curses.color_pair(FAVORITE_COLOR)
     else:
-        win.addstr("↑")
-    win.addstr(str(tweet["retweet_count"]))
+        color = curses.color_pair(DEFAULT_COLOR)
+
+    win.addstr("↑ " + str(tweet["retweet_count"]), color)
+    
     win.addstr("\n\n")
 
 if __name__ == '__main__':
