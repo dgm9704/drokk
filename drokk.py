@@ -12,11 +12,13 @@ DEFAULT_COLOR = 0
 HANDLE_COLOR = 1
 NAME_COLOR = 2
 FAVORITE_COLOR = 3
+URL_COLOR = 4
 
 def main(stdscr):
     curses.init_pair(HANDLE_COLOR, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
     curses.init_pair(NAME_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     curses.init_pair(FAVORITE_COLOR, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(URL_COLOR, curses.COLOR_BLUE, curses.COLOR_BLACK)
     
     stdscr.addstr(0, 0, "drokk\n", curses.A_REVERSE)
     binds = '(r)eload (q)uit'
@@ -61,13 +63,20 @@ def write_header(tweet, win):
 def write_content(tweet, win):
     content = tweet["text"] + "\n"
     win.addstr(content)
+    (y, x) = win.getyx()
+    for url in tweet["entities"]["urls"]:
+        win.addstr(y -1, url["indices"][0], url["url"], curses.color_pair(URL_COLOR))
+
+    for url in tweet["entities"]["user_mentions"]:
+        win.addstr(y -1, url["indices"][0], "@" + url["screen_name"], curses.color_pair(URL_COLOR))
+
 
 def write_footer(tweet, win):
     if tweet["favorited"] == True:
         color = curses.color_pair(FAVORITE_COLOR)
     else:
         color = curses.color_pair(DEFAULT_COLOR)
-
+    win.addstr("\n")
     win.addstr(FAVORITE_SYMBOL + " " + str(tweet["user"]["favourites_count"]), color)
 
     win.addstr("\t\t")
