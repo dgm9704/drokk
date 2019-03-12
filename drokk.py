@@ -24,7 +24,7 @@ def main(stdscr):
     curses.init_pair(HASHTAG_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     
     stdscr.addstr(0, 0, "drokk\n", curses.A_REVERSE)
-    binds = '(r)eload (q)uit'
+    binds = '(r)eload | (q)uit | 0-2 select tweet'
     stdscr.addstr(curses.LINES -1, 0, binds, curses.A_REVERSE)
     begin_y = 3
     begin_x = 3
@@ -34,21 +34,26 @@ def main(stdscr):
 
     while True:
         stdscr.refresh()
-        c = stdscr.getch()
+        c = stdscr.getkey()
 
-        if c == ord('q'):
+        if c == 'q':
             break
-        elif c == ord('r'):
-            load_tweets(win)
-        elif c == ord('u'):
+        elif c == 'r':
+            timeline = read_timeline()
+            load_tweets(timeline, win)
+        elif c == 'u':
             curses.endwin()
             webbrowser.open('http://t.co/bfj7zkDJ')
             curses.doupdate()
+        elif c in ['0','1','2']:
+            tweet = timeline[int(c)]
+            stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
 
-def load_tweets(win):
+def read_timeline():
     with open("data.json", "r") as data:
-        timeline = json.load(data)
+        return json.load(data)
 
+def load_tweets(timeline, win):
     win.erase()
 
     for tweet in timeline:
