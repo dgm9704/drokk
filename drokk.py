@@ -24,7 +24,7 @@ def main(stdscr):
     curses.init_pair(HASHTAG_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     
     stdscr.addstr(0, 0, "drokk\n", curses.A_REVERSE)
-    binds = '(r)eload | (q)uit | 0-2 select tweet'
+    binds = '(r)eload | (q)uit | 0-2 select tweet | open (u)rl of selected tweet'
     stdscr.addstr(curses.LINES -1, 0, binds, curses.A_REVERSE)
     begin_y = 3
     begin_x = 3
@@ -43,7 +43,8 @@ def main(stdscr):
             load_tweets(timeline, win)
         elif c == 'u':
             curses.endwin()
-            webbrowser.open('http://t.co/bfj7zkDJ')
+            #webbrowser.open('http://t.co/bfj7zkDJ')
+            webbrowser.open(tweet["entities"]["urls"][0]["expanded_url"])
             curses.doupdate()
         elif c in ['0','1','2']:
             tweet = timeline[int(c)]
