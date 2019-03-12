@@ -13,12 +13,14 @@ HANDLE_COLOR = 1
 NAME_COLOR = 2
 FAVORITE_COLOR = 3
 URL_COLOR = 4
+HASHTAG_COLOR = 5
 
 def main(stdscr):
     curses.init_pair(HANDLE_COLOR, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-    curses.init_pair(NAME_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.init_pair(NAME_COLOR, curses.COLOR_WHITE, curses.COLOR_BLACK)
     curses.init_pair(FAVORITE_COLOR, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(URL_COLOR, curses.COLOR_BLUE, curses.COLOR_BLACK)
+    curses.init_pair(HASHTAG_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     
     stdscr.addstr(0, 0, "drokk\n", curses.A_REVERSE)
     binds = '(r)eload (q)uit'
@@ -61,17 +63,17 @@ def write_header(tweet, win):
     win.addstr(" (" + name + ")\n", curses.color_pair(NAME_COLOR))
 
 def write_content(tweet, win):
-    content = tweet["text"] #+ "\n"
+    content = tweet["text"] 
     (y, x) = win.getyx()
     win.addstr(content)
     for url in tweet["entities"]["urls"]:
-        win.addstr(y, url["indices"][0], url["url"], curses.color_pair(URL_COLOR))
+        win.addstr(y, url["indices"][0], url["url"], curses.color_pair(URL_COLOR) | curses.A_UNDERLINE)
 
     for url in tweet["entities"]["user_mentions"]:
-        win.addstr(y, url["indices"][0], "@" + url["screen_name"], curses.color_pair(URL_COLOR))
+        win.addstr(y, url["indices"][0], "@" + url["screen_name"], curses.color_pair(HANDLE_COLOR))
 
     for url in tweet["entities"]["hashtags"]:
-        win.addstr(y, url["indices"][0], "#" + url["text"], curses.color_pair(URL_COLOR))
+        win.addstr(y, url["indices"][0], "#" + url["text"], curses.color_pair(HASHTAG_COLOR))
 
     win.move(y +1, x)
 
@@ -80,7 +82,7 @@ def write_footer(tweet, win):
         color = curses.color_pair(FAVORITE_COLOR)
     else:
         color = curses.color_pair(DEFAULT_COLOR)
-    #win.addstr("\n")
+
     win.addstr(FAVORITE_SYMBOL + " " + str(tweet["user"]["favourites_count"]), color)
 
     win.addstr("\t\t")
@@ -89,7 +91,7 @@ def write_footer(tweet, win):
     else:
         color = curses.color_pair(DEFAULT_COLOR)
 
-    win.addstr(FAVORITE_SYMBOL + " " + str(tweet["retweet_count"]), color)
+    win.addstr(RETWEET_SYMBOL + " " + str(tweet["retweet_count"]), color)
     
     win.addstr("\n\n")
 
