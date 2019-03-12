@@ -11,13 +11,19 @@
 
       ],
       "hashtags": [
-
+        {
+	  "text": "another",
+	  "indices": [
+            5,
+	    12
+	  ]
+        }
       ],
       "user_mentions": [
 
       ]
     },
-    "text": "just another test",
+    "text": "just #another test",
     "contributors": null,
     "id": 240558470661799936,
     "retweet_count": 0,

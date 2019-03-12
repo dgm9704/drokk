@@ -61,22 +61,26 @@ def write_header(tweet, win):
     win.addstr(" (" + name + ")\n", curses.color_pair(NAME_COLOR))
 
 def write_content(tweet, win):
-    content = tweet["text"] + "\n"
-    win.addstr(content)
+    content = tweet["text"] #+ "\n"
     (y, x) = win.getyx()
+    win.addstr(content)
     for url in tweet["entities"]["urls"]:
-        win.addstr(y -1, url["indices"][0], url["url"], curses.color_pair(URL_COLOR))
+        win.addstr(y, url["indices"][0], url["url"], curses.color_pair(URL_COLOR))
 
     for url in tweet["entities"]["user_mentions"]:
-        win.addstr(y -1, url["indices"][0], "@" + url["screen_name"], curses.color_pair(URL_COLOR))
+        win.addstr(y, url["indices"][0], "@" + url["screen_name"], curses.color_pair(URL_COLOR))
 
+    for url in tweet["entities"]["hashtags"]:
+        win.addstr(y, url["indices"][0], "#" + url["text"], curses.color_pair(URL_COLOR))
+
+    win.move(y +1, x)
 
 def write_footer(tweet, win):
     if tweet["favorited"] == True:
         color = curses.color_pair(FAVORITE_COLOR)
     else:
         color = curses.color_pair(DEFAULT_COLOR)
-    win.addstr("\n")
+    #win.addstr("\n")
     win.addstr(FAVORITE_SYMBOL + " " + str(tweet["user"]["favourites_count"]), color)
 
     win.addstr("\t\t")
