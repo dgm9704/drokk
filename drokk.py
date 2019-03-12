@@ -1,9 +1,12 @@
  
 # drokk.py
-# ↑
+
 import json 
 from curses import wrapper
 import curses
+
+FAVORITE_SYMBOL ="♥" 
+RETWEET_SYMBOL = "↑"
 
 DEFAULT_COLOR = 0
 HANDLE_COLOR = 1
@@ -65,7 +68,7 @@ def write_footer(tweet, win):
     else:
         color = curses.color_pair(DEFAULT_COLOR)
 
-    win.addstr("♥ " + str(tweet["user"]["favourites_count"]), color)
+    win.addstr(FAVORITE_SYMBOL + " " + str(tweet["user"]["favourites_count"]), color)
 
     win.addstr("\t\t")
     if tweet["retweeted"] == True:
@@ -73,7 +76,7 @@ def write_footer(tweet, win):
     else:
         color = curses.color_pair(DEFAULT_COLOR)
 
-    win.addstr("↑ " + str(tweet["retweet_count"]), color)
+    win.addstr(FAVORITE_SYMBOL + " " + str(tweet["retweet_count"]), color)
     
     win.addstr("\n\n")
 
