@@ -4,6 +4,7 @@
 import json 
 from curses import wrapper
 import curses
+import webbrowser
 
 FAVORITE_SYMBOL ="♥" 
 RETWEET_SYMBOL = "↑"
@@ -39,6 +40,10 @@ def main(stdscr):
             break
         elif c == ord('r'):
             load_tweets(win)
+        elif c == ord('u'):
+            curses.endwin()
+            webbrowser.open('http://t.co/bfj7zkDJ')
+            curses.doupdate()
 
 def load_tweets(win):
     with open("data.json", "r") as data:
