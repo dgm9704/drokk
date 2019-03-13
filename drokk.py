@@ -5,6 +5,7 @@ import json
 from curses import wrapper
 import curses
 import webbrowser
+import math
 
 FAVORITE_SYMBOL ="♥" 
 RETWEET_SYMBOL = "↑"
@@ -23,17 +24,22 @@ def main(stdscr):
     curses.init_pair(URL_COLOR, curses.COLOR_BLUE, curses.COLOR_BLACK)
     curses.init_pair(HASHTAG_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     
-    stdscr.addstr(0, 0, "drokk\n", curses.A_REVERSE)
-    binds = '(r)eload | (q)uit | 0-2 select tweet | open (u)rl of selected tweet'
-    stdscr.addstr(curses.LINES -1, 0, binds, curses.A_REVERSE)
+
+    page_size = 5
     begin_y = 3
     begin_x = 3
     height = curses.LINES -5
     width = curses.COLS -5
     win = curses.newwin(height, width, begin_y, begin_x)
     selection = -1 
-
+    pages = 0
+    page = 0
     while True:
+
+        stdscr.addstr(0, 0, "drokk\tpage " + str(page +1) + "/" + str(pages), curses.A_REVERSE)
+        binds = 'r)eload | q)uit | 0..' + str(page_size -1) + ' select tweet | u)rl of selected tweet | n)ext page | p)rev page'
+        stdscr.addstr(curses.LINES -1, 0, binds, curses.A_REVERSE)
+ 
         stdscr.refresh()
         c = stdscr.getkey()
 
@@ -42,14 +48,25 @@ def main(stdscr):
 
         elif c == 'r':
             timeline = read_timeline()
-            tweet_windows = load_tweets(timeline, win)
+            pages = math.ceil(len(timeline) / page_size)
+            tweet_windows = load_tweets(timeline, page, page_size, win)
             
         elif c == 'u':
             curses.endwin()
             webbrowser.open(tweet["entities"]["urls"][0]["expanded_url"])
             curses.doupdate()
+
+        elif c == 'n':
+            if page < pages -1:
+                page += 1
+                tweet_windows = load_tweets(timeline, page, page_size, win)
+
+        elif c == 'p':
+            if page > 0:
+                page -= 1
+                tweet_windows = load_tweets(timeline, page, page_size, win)
             
-        elif c in ['0','1','2']:
+        elif int(c) in list(range(0, page_size)): #'0','1','2']:
             if not selection == -1:
                 (y, x) = tweet_windows[selection].getbegyx()
                 stdscr.vline(y, x - 1, ' ', 3)
@@ -60,16 +77,18 @@ def main(stdscr):
             stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
 
 def read_timeline():
-    with open("data.json", "r") as data:
+    with open("testoutput.json", "r") as data:
         return json.load(data)
 
-def load_tweets(timeline, win):
+def load_tweets(timeline, page, page_size, win):
     win.erase()
     (y, x) = win.getyx()
     y += 3
     tweet_windows = {}
     t = 0
-    for tweet in timeline:
+    first = page * page_size
+    last = first + page_size 
+    for tweet in timeline[first:last]:
         tw = curses.newwin(5, curses.COLS -3, y + t * 5 + 1, 3)
         output_tweet(tweet,tw)
         tweet_windows[t] = tw
