@@ -25,7 +25,7 @@ def main(stdscr):
     curses.init_pair(HASHTAG_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     
 
-    page_size = 5
+    page_size = 7
     begin_y = 3
     begin_x = 3
     height = curses.LINES -5
@@ -35,7 +35,6 @@ def main(stdscr):
     pages = 0
     page = 0
     while True:
-
         stdscr.addstr(0, 0, "drokk\tpage " + str(page +1) + "/" + str(pages), curses.A_REVERSE)
         binds = 'r)eload | q)uit | 0..' + str(page_size -1) + ' select tweet | u)rl of selected tweet | n)ext page | p)rev page'
         stdscr.addstr(curses.LINES -1, 0, binds, curses.A_REVERSE)
@@ -58,23 +57,33 @@ def main(stdscr):
 
         elif c == 'n':
             if page < pages -1:
+                selection = reset_selection(selection, tweet_windows, stdscr)
                 page += 1
                 tweet_windows = load_tweets(timeline, page, page_size, win)
 
         elif c == 'p':
             if page > 0:
+                selection = reset_selection(selection, tweet_windows, stdscr)
                 page -= 1
                 tweet_windows = load_tweets(timeline, page, page_size, win)
             
-        elif int(c) in list(range(0, page_size)): #'0','1','2']:
-            if not selection == -1:
+        elif int(c) in list(range(0, page_size)):
+            selection = reset_selection(selection, tweet_windows, stdscr)
+            selection = int(c)
+            if selection < len(tweet_windows):
                 (y, x) = tweet_windows[selection].getbegyx()
-                stdscr.vline(y, x - 1, ' ', 3)
-            selection = int(c)    
-            tweet = timeline[selection]
-            (y, x) = tweet_windows[selection].getbegyx()
-            stdscr.vline(y, x - 1, curses.ACS_VLINE, 3)
-            stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
+                tweet = timeline[selection + page * page_size]
+                stdscr.vline(y, x - 1, curses.ACS_VLINE, 3)
+                stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
+            else:
+                selection = -1
+
+def reset_selection(selection, tweet_windows, win):
+    if selection > -1:
+        (y, x) = tweet_windows[selection].getbegyx()
+        win.vline(y, x - 1, ' ', 3)
+    return -1
+
 
 def read_timeline():
     with open("testoutput.json", "r") as data:
@@ -82,6 +91,7 @@ def read_timeline():
 
 def load_tweets(timeline, page, page_size, win):
     win.erase()
+    win.refresh()
     (y, x) = win.getyx()
     y += 3
     tweet_windows = {}
