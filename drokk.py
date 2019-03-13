@@ -31,6 +31,7 @@ def main(stdscr):
     height = curses.LINES -5
     width = curses.COLS -5
     win = curses.newwin(height, width, begin_y, begin_x)
+    selection = -1 
 
     while True:
         stdscr.refresh()
@@ -38,16 +39,24 @@ def main(stdscr):
 
         if c == 'q':
             break
+
         elif c == 'r':
             timeline = read_timeline()
-            load_tweets(timeline, win)
+            tweet_windows = load_tweets(timeline, win)
+            
         elif c == 'u':
             curses.endwin()
-            #webbrowser.open('http://t.co/bfj7zkDJ')
             webbrowser.open(tweet["entities"]["urls"][0]["expanded_url"])
             curses.doupdate()
+            
         elif c in ['0','1','2']:
-            tweet = timeline[int(c)]
+            if not selection == -1:
+                (y, x) = tweet_windows[selection].getbegyx()
+                stdscr.vline(y, x - 1, ' ', 3)
+            selection = int(c)    
+            tweet = timeline[selection]
+            (y, x) = tweet_windows[selection].getbegyx()
+            stdscr.vline(y, x - 1, curses.ACS_VLINE, 3)
             stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
 
 def read_timeline():
@@ -56,11 +65,17 @@ def read_timeline():
 
 def load_tweets(timeline, win):
     win.erase()
-
+    (y, x) = win.getyx()
+    y += 3
+    tweet_windows = {}
+    t = 0
     for tweet in timeline:
-        output_tweet(tweet,win)
-    win.refresh()
-    
+        tw = curses.newwin(5, curses.COLS -3, y + t * 5 + 1, 3)
+        output_tweet(tweet,tw)
+        tweet_windows[t] = tw
+        tw.refresh()
+        t += 1
+    return tweet_windows
 
 def output_tweet(tweet, win):
     write_header(tweet, win)
@@ -104,7 +119,7 @@ def write_footer(tweet, win):
 
     win.addstr(RETWEET_SYMBOL + " " + str(tweet["retweet_count"]), color)
     
-    win.addstr("\n\n")
+    win.addstr("\n")
 
 if __name__ == '__main__':
     wrapper(main)
