@@ -58,17 +58,41 @@ def main(stdscr):
             webbrowser.open(tweet["entities"]["urls"][0]["expanded_url"])
             curses.doupdate()
 
-        elif c == 'n':
+        elif c in ('n', 'l'):
             if page < pages -1:
                 selection = reset_selection(selection, tweet_windows, stdscr)
                 page += 1
                 tweet_windows = load_tweets(timeline, page, page_size, win)
 
-        elif c == 'p':
+        elif c in ('p', 'h'):
             if page > 0:
                 selection = reset_selection(selection, tweet_windows, stdscr)
                 page -= 1
                 tweet_windows = load_tweets(timeline, page, page_size, win)
+
+        elif c == 'j':
+            next_selection = 0
+            if selection < len(tweet_windows) -1:
+                next_selection = selection +1
+            selection = reset_selection(selection, tweet_windows, stdscr)
+            selection = next_selection
+            (y, x) = tweet_windows[selection].getbegyx()
+            tweet = timeline[selection + page * page_size]
+            stdscr.vline(y, x - 1, curses.ACS_VLINE, 3)
+            stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
+
+        elif c == 'k':
+            next_selection = len(tweet_windows) -1
+            if selection > 0:
+                next_selection = selection -1
+            selection = reset_selection(selection, tweet_windows, stdscr)
+            selection = next_selection
+            (y, x) = tweet_windows[selection].getbegyx()
+            tweet = timeline[selection + page * page_size]
+            stdscr.vline(y, x - 1, curses.ACS_VLINE, 3)
+            stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
+
+
             
         elif int(c) in list(range(0, page_size)):
             selection = reset_selection(selection, tweet_windows, stdscr)
