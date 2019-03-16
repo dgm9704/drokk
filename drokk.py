@@ -25,7 +25,6 @@ def main(stdscr):
     curses.init_pair(HASHTAG_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     
 
-    page_size = 7
     begin_y = 3
     begin_x = 3
     height = curses.LINES -5
@@ -35,6 +34,7 @@ def main(stdscr):
     pages = 0
     page = 0
     while True:
+        page_size = (curses.LINE: -5) // 5
         stdscr.addstr(0, 0, "drokk\tpage " + str(page +1) + "/" + str(pages), curses.A_REVERSE)
         binds = 'r)eload | q)uit | 0..' + str(page_size -1) + ' select tweet | u)rl of selected tweet | n)ext page | p)rev page'
         stdscr.addstr(curses.LINES -1, 0, binds, curses.A_REVERSE)
