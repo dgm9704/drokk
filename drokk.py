@@ -17,6 +17,7 @@ FAVORITE_COLOR = 3
 URL_COLOR = 4
 HASHTAG_COLOR = 5
 
+
 def main(stdscr):
     curses.init_pair(HANDLE_COLOR, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
     curses.init_pair(NAME_COLOR, curses.COLOR_WHITE, curses.COLOR_BLACK)
@@ -24,7 +25,6 @@ def main(stdscr):
     curses.init_pair(URL_COLOR, curses.COLOR_BLUE, curses.COLOR_BLACK)
     curses.init_pair(HASHTAG_COLOR, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     
-
     begin_y = 3
     begin_x = 3
     height = curses.LINES -5
@@ -60,13 +60,15 @@ def main(stdscr):
 
         elif c in ('n', 'l'):
             if page < pages -1:
-                selection = reset_selection(selection, tweet_windows, stdscr)
+                reset_selection(selection, tweet_windows, stdscr)
+                selection = -1
                 page += 1
                 tweet_windows = load_tweets(timeline, page, page_size, win)
 
         elif c in ('p', 'h'):
             if page > 0:
-                selection = reset_selection(selection, tweet_windows, stdscr)
+                reset_selection(selection, tweet_windows, stdscr)
+                selection = -1
                 page -= 1
                 tweet_windows = load_tweets(timeline, page, page_size, win)
 
@@ -74,42 +76,39 @@ def main(stdscr):
             next_selection = 0
             if selection < len(tweet_windows) -1:
                 next_selection = selection +1
-            selection = reset_selection(selection, tweet_windows, stdscr)
+            reset_selection(selection, tweet_windows, stdscr)
             selection = next_selection
-            (y, x) = tweet_windows[selection].getbegyx()
-            tweet = timeline[selection + page * page_size]
-            stdscr.vline(y, x - 1, curses.ACS_VLINE, 3)
-            stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
+            select_tweet(selection, tweet_windows, stdscr)
 
         elif c == 'k':
             next_selection = len(tweet_windows) -1
             if selection > 0:
                 next_selection = selection -1
-            selection = reset_selection(selection, tweet_windows, stdscr)
+            reset_selection(selection, tweet_windows, stdscr)
             selection = next_selection
-            (y, x) = tweet_windows[selection].getbegyx()
-            tweet = timeline[selection + page * page_size]
-            stdscr.vline(y, x - 1, curses.ACS_VLINE, 3)
-            stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
+            select_tweet(selection, tweet_windows, stdscr)
 
-
-            
         elif int(c) in list(range(0, page_size)):
-            selection = reset_selection(selection, tweet_windows, stdscr)
-            selection = int(c)
+            next_selection = int(c)
+            reset_selection(selection, tweet_windows, stdscr)
+            selection = next_selection
             if selection < len(tweet_windows):
-                (y, x) = tweet_windows[selection].getbegyx()
-                tweet = timeline[selection + page * page_size]
-                stdscr.vline(y, x - 1, curses.ACS_VLINE, 3)
-                stdscr.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
+                select_tweet(selection, tweet_windows, stdscr)
             else:
                 selection = -1
+
+
+def select_tweet(selection, tweet_windows, win):
+    (y, x) = tweet_windows[selection].getbegyx()
+    #tweet = timeline[selection + page * page_size]
+    win.vline(y, x - 1, curses.ACS_VLINE, 3)
+    #win.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
+
 
 def reset_selection(selection, tweet_windows, win):
     if selection > -1:
         (y, x) = tweet_windows[selection].getbegyx()
         win.vline(y, x - 1, ' ', 3)
-    return -1
 
 
 def read_timeline():
@@ -133,16 +132,19 @@ def load_tweets(timeline, page, page_size, win):
         t += 1
     return tweet_windows
 
+
 def output_tweet(tweet, win):
     write_header(tweet, win)
     write_content(tweet, win)
     write_footer(tweet, win)
+
 
 def write_header(tweet, win):
     handle = "@" + tweet["user"]["screen_name"] 
     win.addstr(handle, curses.color_pair(HANDLE_COLOR))
     name = tweet["user"]["name"] 
     win.addstr(" (" + name + ")\n", curses.color_pair(NAME_COLOR))
+
 
 def write_content(tweet, win):
     content = tweet["text"] 
@@ -158,6 +160,7 @@ def write_content(tweet, win):
         win.addstr(y, url["indices"][0], "#" + url["text"], curses.color_pair(HASHTAG_COLOR))
 
     win.move(y +1, x)
+
 
 def write_footer(tweet, win):
     if tweet["favorited"] == True:
