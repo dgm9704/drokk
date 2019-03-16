@@ -34,7 +34,10 @@ def main(stdscr):
     pages = 0
     page = 0
     while True:
-        page_size = (curses.LINE: -5) // 5
+        page_size = (curses.LINES -5) // 5
+        if page_size > 10:
+            page_size = 10
+
         stdscr.addstr(0, 0, "drokk\tpage " + str(page +1) + "/" + str(pages), curses.A_REVERSE)
         binds = 'r)eload | q)uit | 0..' + str(page_size -1) + ' select tweet | u)rl of selected tweet | n)ext page | p)rev page'
         stdscr.addstr(curses.LINES -1, 0, binds, curses.A_REVERSE)
