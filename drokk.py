@@ -6,6 +6,7 @@ from curses import wrapper
 import curses
 import webbrowser
 import math
+import subprocess
 
 FAVORITE_SYMBOL ="♥" 
 RETWEET_SYMBOL = "↑"
@@ -49,6 +50,9 @@ def main(stdscr):
             break
 
         elif c == 'r':
+            if selection > -1:
+                reset_selection(selection, tweet_windows, stdscr)
+            page = 0
             timeline = read_timeline()
             pages = math.ceil(len(timeline) / page_size)
             tweet_windows = load_tweets(timeline, page, page_size, win)
@@ -112,6 +116,13 @@ def reset_selection(selection, tweet_windows, win):
 
 
 def read_timeline():
+    process = subprocess.Popen([
+        'curl',
+        '-s', 
+        '-O', 
+        'https://raw.githubusercontent.com/dgm9704/drokk/master/testoutput.json'],
+        )
+    process.wait()
     with open("testoutput.json", "r") as data:
         return json.load(data)
 
