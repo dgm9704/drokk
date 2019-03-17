@@ -58,6 +58,8 @@ def main(stdscr):
             tweet_windows = load_tweets(timeline, page, page_size, win)
             
         elif c == 'u':
+            tweet = timeline[selection + page * page_size]
+            #win.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
             curses.endwin()
             webbrowser.open(tweet["entities"]["urls"][0]["expanded_url"])
             curses.doupdate()
@@ -104,9 +106,7 @@ def main(stdscr):
 
 def select_tweet(selection, tweet_windows, win):
     (y, x) = tweet_windows[selection].getbegyx()
-    #tweet = timeline[selection + page * page_size]
     win.vline(y, x - 1, curses.ACS_VLINE, 3)
-    #win.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
 
 
 def reset_selection(selection, tweet_windows, win):
@@ -118,12 +118,15 @@ def reset_selection(selection, tweet_windows, win):
 def read_timeline():
     process = subprocess.Popen([
         'curl',
-        '-s', 
-        '-O', 
-        'https://raw.githubusercontent.com/dgm9704/drokk/master/testoutput.json'],
-        )
+        '-s',
+        '--header',
+        'Authorization: Bearer ',
+        '-otimeline.json',
+        'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=dgm9704',
+        ])
+
     process.wait()
-    with open("testoutput.json", "r") as data:
+    with open("timeline.json", "r") as data:
         return json.load(data)
 
 def load_tweets(timeline, page, page_size, win):
@@ -160,7 +163,10 @@ def write_header(tweet, win):
 def write_content(tweet, win):
     content = tweet["text"] 
     (y, x) = win.getyx()
+    if not content:
+        content = ""
     win.addstr(content)
+
     for url in tweet["entities"]["urls"]:
         win.addstr(y, url["indices"][0], url["url"], curses.color_pair(URL_COLOR) | curses.A_UNDERLINE)
 
