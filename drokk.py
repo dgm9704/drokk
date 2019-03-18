@@ -103,6 +103,7 @@ def main(stdscr):
                 media = ext["media"]
                 image = media[0]
                 url = image["expanded_url"]
+                url = image["media_url_https"]
                 curses.endwin()
                 viewer = subprocess.Popen(["w3m",url])
                 viewer.wait()
