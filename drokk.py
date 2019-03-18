@@ -41,6 +41,9 @@ def main(stdscr):
         if page_size > 10:
             page_size = 10
 
+        handle = 'xkcdComic'
+        max_tweets = 3400
+
         stdscr.addstr(0, 0, "drokk\tpage " + str(page +1) + "/" + str(pages), curses.A_REVERSE)
         binds = 'r)eload | q)uit | 0..' + str(page_size -1) + ' select tweet | u)rl of selected tweet | n)ext page | p)rev page'
         stdscr.addstr(curses.LINES -1, 0, binds, curses.A_REVERSE)
@@ -55,7 +58,7 @@ def main(stdscr):
             if selection > -1:
                 reset_selection(selection, tweet_windows, stdscr)
             page = 0
-            timeline = read_timeline()
+            timeline = read_user_timeline(handle, max_tweets)
             pages = math.ceil(len(timeline) / page_size)
             tweet_windows = load_tweets(timeline, page, page_size, win)
             
@@ -130,7 +133,7 @@ def open_image(tweet):
                 ])
             download.wait()
 
-        viewer = subprocess.Popen(["fbi", path])
+        viewer = subprocess.Popen(["fbi", "--autodown", "--comments", path])
         viewer.wait()
         curses.doupdate()
 
@@ -146,7 +149,7 @@ def reset_selection(selection, tweet_windows, win):
         win.vline(y, x - 1, ' ', 3)
 
 
-def read_timeline():
+def read_user_timeline(handle, max_tweets):
     with open(".bearer", "r") as bearer:
         bearer_key = bearer.read().strip()
 
@@ -156,7 +159,7 @@ def read_timeline():
         '--header',
         'Authorization: Bearer ' + bearer_key,
         '-otimeline.json',
-        'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=dgm9704',
+        'https://api.twitter.com/1.1/statuses/user_timeline.json?count=' + str(max_tweets) + '&screen_name=' + handle,
         ])
 
     download.wait()
@@ -199,8 +202,11 @@ def write_content(tweet, win):
     content = tweet["text"] 
     (y, x) = win.getyx()
     if not content:
-        content = ""
-    win.addstr(content)
+        content = " "
+    try:
+        win.addstr(content)
+    except:
+        print(content)
 
     for url in tweet["entities"]["urls"]:
         win.addstr(y, url["indices"][0], url["url"], curses.color_pair(URL_COLOR) | curses.A_UNDERLINE)
@@ -220,7 +226,7 @@ def write_footer(tweet, win):
     else:
         color = curses.color_pair(DEFAULT_COLOR)
 
-    win.addstr(FAVORITE_SYMBOL + " " + str(tweet.get("favourites_count","")), color)
+    win.addstr(FAVORITE_SYMBOL + " " + str(tweet.get("favourite_count","")), color)
 
     win.addstr("\t\t")
     if tweet["retweeted"] == True:
