@@ -59,10 +59,10 @@ def main(stdscr):
             
         elif c == 'u':
             tweet = timeline[selection + page * page_size]
-            #win.addstr(1,0,tweet["id_str"], curses.A_REVERSE)
-            curses.endwin()
-            webbrowser.open(tweet["entities"]["urls"][0]["expanded_url"])
-            curses.doupdate()
+            if len(tweet["entities"]["urls"]) > 0:
+                curses.endwin()
+                webbrowser.open(tweet["entities"]["urls"][0]["expanded_url"])
+                curses.doupdate()
 
         elif c in ('n', 'l'):
             if page < pages -1:
@@ -116,11 +116,14 @@ def reset_selection(selection, tweet_windows, win):
 
 
 def read_timeline():
+    with open(".bearer", "r") as bearer:
+        bearer_key = bearer.read().strip()
+
     process = subprocess.Popen([
         'curl',
         '-s',
         '--header',
-        'Authorization: Bearer ',
+        'Authorization: Bearer ' + bearer_key,
         '-otimeline.json',
         'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=dgm9704',
         ])
@@ -185,7 +188,7 @@ def write_footer(tweet, win):
     else:
         color = curses.color_pair(DEFAULT_COLOR)
 
-    win.addstr(FAVORITE_SYMBOL + " " + str(tweet["user"]["favourites_count"]), color)
+    win.addstr(FAVORITE_SYMBOL + " " + str(tweet.get("favourites_count","")), color)
 
     win.addstr("\t\t")
     if tweet["retweeted"] == True:
