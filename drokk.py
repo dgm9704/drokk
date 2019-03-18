@@ -7,6 +7,7 @@ import curses
 import webbrowser
 import math
 import subprocess
+import os
 
 FAVORITE_SYMBOL ="♥" 
 RETWEET_SYMBOL = "↑"
@@ -20,6 +21,7 @@ HASHTAG_COLOR = 5
 
 
 def main(stdscr):
+    os.makedirs('/tmp/drokk', exist_ok=True)
     curses.init_pair(HANDLE_COLOR, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
     curses.init_pair(NAME_COLOR, curses.COLOR_WHITE, curses.COLOR_BLACK)
     curses.init_pair(FAVORITE_COLOR, curses.COLOR_RED, curses.COLOR_BLACK)
@@ -102,10 +104,21 @@ def main(stdscr):
             if ext:
                 media = ext["media"]
                 image = media[0]
-                url = image["expanded_url"]
                 url = image["media_url_https"]
+                id = image["id_str"]
+                path = '/tmp/drokk/' + id
                 curses.endwin()
-                viewer = subprocess.Popen(["w3m",url])
+                process = subprocess.Popen([
+                    'curl',
+                    '-s',
+                    '-o' + path,
+                    url
+                    ])
+
+                process.wait()
+
+                #viewer = subprocess.Popen(["w3m",url])
+                viewer = subprocess.Popen(["fbi", path])
                 viewer.wait()
                 curses.doupdate()
                 
