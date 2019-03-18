@@ -94,6 +94,20 @@ def main(stdscr):
             selection = next_selection
             select_tweet(selection, tweet_windows, stdscr)
 
+#"extended_entities":{"media":[{"id":1107695748248940546,"id_str":"1107695748248940546","indices":[95,118],"media_url":"http:\/\/pbs.twimg.com\/media\/D19TagmWsAIqFpG.jpg","media_url_https":"https:\/\/pbs.twimg.com\/media\/D19TagmWsAIqFpG.jpg","url":"https:\/\/t.co\/H1soaHhj3u","display_url":"pic.twitter.com\/H1soaHhj3u","expanded_url":"https:\/\/twitter.com\/helsinkikuvaa\/status\/1107695749360439296\/photo\/1","type":"photo","sizes":{"large":{"w":768,"h":577,"resize":"fit"},"thumb":{"w":150,"h":150,"resize":"crop"},"small":{"w":680,"h":511,"resize":"fit"},"medium":{"w":768,"h":577,"resize":"fit"}},"source_status_id":1107695749360439296,"source_status_id_str":"1107695749360439296","source_user_id":789704730964529152,"source_user_id_str":"789704730964529152"}]},
+ 
+        elif c == 'i':
+            tweet = timeline[selection + page * page_size]
+            ext = tweet.get("extended_entities")
+            if ext:
+                media = ext["media"]
+                image = media[0]
+                url = image["expanded_url"]
+                #curses.endwin()
+                stdscr.addstr(url)
+                #curses.doupdate()
+                
+
         elif int(c) in list(range(0, page_size)):
             next_selection = int(c)
             reset_selection(selection, tweet_windows, stdscr)
@@ -125,12 +139,13 @@ def read_timeline():
         '--header',
         'Authorization: Bearer ' + bearer_key,
         '-otimeline.json',
-        'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=dgm9704',
+        'https://api.twitter.com/1.1/statuses/user_timeline.json?count=5&screen_name=dgm9704',
         ])
 
     process.wait()
     with open("timeline.json", "r") as data:
         return json.load(data)
+
 
 def load_tweets(timeline, page, page_size, win):
     win.erase()
@@ -178,7 +193,7 @@ def write_content(tweet, win):
 
     for url in tweet["entities"]["hashtags"]:
         win.addstr(y, url["indices"][0], "#" + url["text"], curses.color_pair(HASHTAG_COLOR))
-
+   
     win.move(y +1, x)
 
 
