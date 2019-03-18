@@ -103,9 +103,10 @@ def main(stdscr):
                 media = ext["media"]
                 image = media[0]
                 url = image["expanded_url"]
-                #curses.endwin()
-                stdscr.addstr(url)
-                #curses.doupdate()
+                curses.endwin()
+                viewer = subprocess.Popen(["w3m",url])
+                viewer.wait()
+                curses.doupdate()
                 
 
         elif int(c) in list(range(0, page_size)):
